@@ -1,8 +1,8 @@
-FROM gradle:8-jdk25 AS build
+FROM gradle:9.1.0-jdk25 AS build
 
 WORKDIR /app
 COPY . .
-RUN gradle bootJar --no-daemon
+RUN gradle test bootJar --no-daemon
 
 FROM eclipse-temurin:25-jre
 

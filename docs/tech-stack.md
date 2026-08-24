@@ -6,9 +6,9 @@
 
 ## 프론트엔드
 
-- Next.js 최신 안정 버전
-- React: Next.js가 지원하는 안정 버전
-- TypeScript
+- Next.js 16.1.1
+- React 19.2.0
+- TypeScript 5.9.3
 - Node.js 24 LTS 컨테이너
 
 Next.js가 화면 구성과 라우팅을 담당하고, React로 입력 폼·결과 화면·확률 애니메이션을 구현한다.
@@ -16,7 +16,7 @@ Next.js가 화면 구성과 라우팅을 담당하고, React로 입력 폼·결�
 ## 백엔드
 
 - Java 25 LTS
-- Spring Boot 최신 안정 버전
+- Spring Boot 4.0.0
 - Spring Web 기반 REST API
 - Gradle
 
