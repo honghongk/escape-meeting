@@ -4,8 +4,31 @@
 
 로컬 환경에는 Java, Node.js, npm, pnpm을 직접 설치하지 않는다. 호스트에는 Docker Desktop만 설치하고, 프론트엔드와 백엔드의 실행 환경은 Docker Compose로 통일한다.
 
-## 프론트엔드
 
+## 원격 실행
+
+로컬에서 Docker를 실행할 필요는 없다. Docker Desktop 또는 Docker Engine과 Compose 플러그인이 설치된 원격 환경에서 저장소를 받은 뒤 실행한다.
+
+```bash
+git clone <repository-url>
+cd escape-meeting
+## 프론트엔드
+```
+
+브라우저에서는 원격 서버의 `3000` 포트로 접속한다. 방화벽이나 보안 그룹을 사용하는 환경이라면 `3000/tcp`만 외부에 열면 된다. 백엔드 `8080` 포트는 Compose 네트워크 내부에서만 사용한다.
+
+상태 확인:
+
+```bash
+docker compose ps
+
+```
+
+종료:
+
+```bash
+docker compose down
+```
 - Next.js 16.1.1
 - React 19.2.0
 - TypeScript 5.9.3
@@ -26,9 +49,9 @@ Next.js가 화면 구성과 라우팅을 담당하고, React로 입력 폼·결�
 
 - 프론트엔드와 백엔드 간 REST/JSON 통신
 - 프론트엔드 개발 주소: `http://localhost:3000`
-- 백엔드 개발 주소: `http://localhost:8080`
-- 브라우저에서 호출하는 API 주소: `http://localhost:8080`
-- 컨테이너 간 통신이 필요한 경우 백엔드 호스트명은 `backend`를 사용
+- 백엔드 개발 주소: 컨테이너 내부 `http://backend:8080`
+- 브라우저에서 호출하는 API 주소: 프론트엔드와 같은 출처의 `/api`
+- Next.js가 `/api/*` 요청을 백엔드 컨테이너의 `http://backend:8080/api/*`로 프록시
 
 ## Docker Compose
 
@@ -43,7 +66,7 @@ Compose는 다음 두 서비스를 실행한다.
 브라우저
   ↓ http://localhost:3000
 Next.js 컨테이너
-  ↓ http://localhost:8080/api
+  ↓ /api/analyze → http://backend:8080/api/analyze
 Spring Boot 컨테이너
 ```
 
