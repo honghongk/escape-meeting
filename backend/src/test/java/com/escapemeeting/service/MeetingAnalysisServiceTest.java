@@ -5,6 +5,7 @@ import com.escapemeeting.api.AnalyzeResponse;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MeetingAnalysisServiceTest {
@@ -38,5 +39,14 @@ class MeetingAnalysisServiceTest {
         );
 
         assertEquals(service.analyze(request).meetingType(), service.analyze(request).meetingType());
+    }
+
+    @Test
+    void rejectsUnknownInputValues() {
+        AnalyzeRequest request = new AnalyzeRequest(
+                "unknown", "silent", "once", "manager", false
+        );
+
+        assertThrows(IllegalArgumentException.class, () -> service.analyze(request));
     }
 }

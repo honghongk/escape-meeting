@@ -41,6 +41,7 @@ public class MeetingAnalysisService {
     );
 
     public AnalyzeResponse analyze(AnalyzeRequest request) {
+                validate(request);
         int score = 50
                 + scoreFor(DURATION_SCORES, request.duration())
                 + scoreFor(MOOD_SCORES, request.mood())
@@ -60,6 +61,26 @@ public class MeetingAnalysisService {
                 strategies(probability)
         );
     }
+
+        private void validate(AnalyzeRequest request) {
+                if (request == null
+                                || isBlank(request.duration())
+                                || isBlank(request.mood())
+                                || isBlank(request.oneMore())
+                                || isBlank(request.attendees())) {
+                        throw new IllegalArgumentException("모든 회의 정보를 입력해주세요.");
+                }
+                if (!DURATION_SCORES.containsKey(request.duration())
+                                || !MOOD_SCORES.containsKey(request.mood())
+                                || !ONE_MORE_SCORES.containsKey(request.oneMore())
+                                || !ATTENDEE_SCORES.containsKey(request.attendees())) {
+                        throw new IllegalArgumentException("지원하지 않는 회의 정보입니다.");
+                }
+        }
+
+        private boolean isBlank(String value) {
+                return value == null || value.isBlank();
+        }
 
     private int scoreFor(Map<String, Integer> scores, String key) {
         return scores.getOrDefault(key, 0);

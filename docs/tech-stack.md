@@ -18,7 +18,7 @@ Next.js가 화면 구성과 라우팅을 담당하고, React로 입력 폼·결�
 - Java 25 LTS
 - Spring Boot 4.0.0
 - Spring Web 기반 REST API
-- Gradle
+- Gradle 9.1.0
 
 백엔드는 회의 입력값을 받아 탈출 확률과 결과 데이터를 계산하는 무상태 API로 구성한다. 초기 MVP에서는 로그인과 데이터 저장이 없으므로 데이터베이스를 사용하지 않는다.
 
@@ -46,6 +46,43 @@ Next.js 컨테이너
   ↓ http://localhost:8080/api
 Spring Boot 컨테이너
 ```
+
+### 분석 API
+
+`POST /api/analyze`
+
+요청:
+
+```json
+{
+  "duration": "sixty",
+  "mood": "silent",
+  "oneMore": "once",
+  "attendees": "manager",
+  "hasEndTime": false
+}
+```
+
+응답:
+
+```json
+{
+  "probability": 40,
+  "statusTitle": "😐 탈출 가능성 있음",
+  "statusMessage": "누군가 먼저 ‘저는 이만...’을 말해주길 기다리세요.",
+  "estimatedMinutes": 64,
+  "meetingType": "🌀 무한 회의",
+  "strategies": [
+    {
+      "name": "화장실 전략",
+      "probability": 61,
+      "note": "가장 자연스럽게 자리를 비울 수 있습니다."
+    }
+  ]
+}
+```
+
+헬스 체크: `GET /api/health`
 
 실행 명령:
 
