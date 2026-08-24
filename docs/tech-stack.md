@@ -1,0 +1,85 @@
+# 기술 스택
+
+## 개발 원칙
+
+로컬 환경에는 Java, Node.js, npm, pnpm을 직접 설치하지 않는다. 호스트에는 Docker Desktop만 설치하고, 프론트엔드와 백엔드의 실행 환경은 Docker Compose로 통일한다.
+
+## 프론트엔드
+
+- Next.js 최신 안정 버전
+- React: Next.js가 지원하는 안정 버전
+- TypeScript
+- Node.js 24 LTS 컨테이너
+
+Next.js가 화면 구성과 라우팅을 담당하고, React로 입력 폼·결과 화면·확률 애니메이션을 구현한다.
+
+## 백엔드
+
+- Java 25 LTS
+- Spring Boot 최신 안정 버전
+- Spring Web 기반 REST API
+- Gradle
+
+백엔드는 회의 입력값을 받아 탈출 확률과 결과 데이터를 계산하는 무상태 API로 구성한다. 초기 MVP에서는 로그인과 데이터 저장이 없으므로 데이터베이스를 사용하지 않는다.
+
+## 통신
+
+- 프론트엔드와 백엔드 간 REST/JSON 통신
+- 프론트엔드 개발 주소: `http://localhost:3000`
+- 백엔드 개발 주소: `http://localhost:8080`
+- 브라우저에서 호출하는 API 주소: `http://localhost:8080`
+- 컨테이너 간 통신이 필요한 경우 백엔드 호스트명은 `backend`를 사용
+
+## Docker Compose
+
+Compose는 다음 두 서비스를 실행한다.
+
+| 서비스 | 역할 | 포트 |
+| --- | --- | --- |
+| `frontend` | Next.js 개발 서버 | `3000` |
+| `backend` | Spring Boot API 서버 | `8080` |
+
+```text
+브라우저
+  ↓ http://localhost:3000
+Next.js 컨테이너
+  ↓ http://localhost:8080/api
+Spring Boot 컨테이너
+```
+
+실행 명령:
+
+```bash
+docker compose up --build
+```
+
+백그라운드 실행:
+
+```bash
+docker compose up --build -d
+```
+
+종료:
+
+```bash
+docker compose down
+```
+
+## 호스트 설치 금지 항목
+
+다음 도구는 로컬에 직접 설치하지 않는다.
+
+- Java
+- Node.js
+- npm 또는 pnpm
+- Gradle
+
+각 도구의 버전은 해당 Dockerfile과 프로젝트의 버전 고정 파일에서 관리한다.
+
+## MVP 운영 원칙
+
+- 데이터베이스 없음
+- 로그인 및 회원가입 없음
+- 외부 AI/API 없음
+- 백엔드는 분석 API 한 개를 중심으로 최소 구성
+- 프론트엔드와 백엔드 모두 컨테이너 내부에서 실행
