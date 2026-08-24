@@ -12,10 +12,11 @@
 ```bash
 git clone <repository-url>
 cd escape-meeting
-## 프론트엔드
 ```
 
 브라우저에서는 원격 서버의 `3000` 포트로 접속한다. 방화벽이나 보안 그룹을 사용하는 환경이라면 `3000/tcp`만 외부에 열면 된다. 백엔드 `8080` 포트는 Compose 네트워크 내부에서만 사용한다.
+
+프론트엔드의 `NEXT_PUBLIC_API_BASE_URL`이 비어 있으면 브라우저는 같은 출처의 `/api`를 호출하고, Next.js 개발 서버가 `backend:8080`으로 프록시한다. 앱인토스용 정적 번들을 만들 때는 공개 HTTPS 백엔드 주소를 이 변수에 설정한다.
 
 상태 확인:
 
@@ -29,6 +30,20 @@ docker compose ps
 ```bash
 docker compose down
 ```
+
+## 앱인토스 번들
+
+앱인토스 비게임 출시 가이드는 SSR을 허용하지 않으므로, 앱인토스용 빌드는 정적 CSR export 경로를 사용한다.
+
+```bash
+cd frontend
+NEXT_PUBLIC_API_BASE_URL=https://<public-api-host> npm run build:ait
+```
+
+결과물은 `frontend/out`에 생성된다. 앱인토스 공식 기존 웹 프로젝트 가이드는 Vite 기반 `@apps-in-toss/web-framework` 설정을 예시로 안내하고 있으며, 현재 Next.js export 결과물을 앱 번들로 등록하는 호환성은 콘솔에서 실제 번들 업로드로 확인해야 한다. 이 확인 전에는 Next.js 지원을 확정하지 않는다.
+
+## 프론트엔드
+
 - Next.js 16.1.1
 - React 19.2.0
 - TypeScript 5.9.3

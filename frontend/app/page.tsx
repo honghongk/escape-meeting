@@ -100,6 +100,8 @@ const analysisLines = [
   "퇴근 가능성 계산 중...",
 ];
 
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
+
 export default function Home() {
   const [phase, setPhase] = useState<Phase>("start");
   const [step, setStep] = useState(0);
@@ -136,7 +138,7 @@ export default function Home() {
     }, 260);
 
     try {
-      const response = await fetch("/api/analyze", {
+      const response = await fetch(`${apiBaseUrl}/api/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(answers),
