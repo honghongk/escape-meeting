@@ -23,3 +23,5 @@ services:
       dockerfile: Dockerfile
     environment:
       SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "11002:8080"
