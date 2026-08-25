@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type Phase = "start" | "questions" | "analyzing" | "result";
 
@@ -102,7 +103,41 @@ const analysisLines = [
 
 const apiBaseUrl = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
 
+function answersFromSearch(search: string): Answers | null {
+  const params = new URLSearchParams(search);
+  const duration = params.get("duration");
+  const mood = params.get("mood");
+  const oneMore = params.get("oneMore");
+  const attendees = params.get("attendees");
+  const hasEndTime = params.get("hasEndTime");
+
+  if (!duration || !mood || !oneMore || !attendees || !["true", "false"].includes(hasEndTime ?? "")) {
+    return null;
+  }
+
+  const answerValues = { duration, mood, oneMore, attendees };
+  const answerKeys = ["duration", "mood", "oneMore", "attendees"] as const;
+  const validAnswers = answerKeys.every((key) =>
+    questions.find((question) => question.key === key)?.options.some(([value]) => value === answerValues[key]),
+  );
+
+  if (!validAnswers) return null;
+
+  return { ...answerValues, hasEndTime: hasEndTime === "true" };
+}
+
+function searchFromAnswers(answers: Answers) {
+  return new URLSearchParams({
+    duration: answers.duration,
+    mood: answers.mood,
+    oneMore: answers.oneMore,
+    attendees: answers.attendees,
+    hasEndTime: String(answers.hasEndTime),
+  }).toString();
+}
+
 export default function Home() {
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>("start");
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>(initialAnswers);
@@ -110,6 +145,7 @@ export default function Home() {
   const [analysisLine, setAnalysisLine] = useState(0);
   const [error, setError] = useState("");
   const [shareLabel, setShareLabel] = useState("결과 공유");
+  const sharedResultLoaded = useRef(false);
 
   const currentQuestion = questions[step];
   const currentValue = answers[currentQuestion.key];
@@ -128,7 +164,7 @@ export default function Home() {
     }));
   }
 
-  async function submitAnalysis() {
+  async function submitAnalysis(requestAnswers = answers) {
     setPhase("analyzing");
     setError("");
     setAnalysisLine(0);
@@ -141,7 +177,7 @@ export default function Home() {
       const response = await fetch(`${apiBaseUrl}/api/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(answers),
+        body: JSON.stringify(requestAnswers),
       });
 
       if (!response.ok) {
@@ -152,6 +188,7 @@ export default function Home() {
       await new Promise((resolve) => window.setTimeout(resolve, 900));
       setAnalysis(result);
       setPhase("result");
+      router.replace(`/?${searchFromAnswers(requestAnswers)}`, { scroll: false });
     } catch {
       setError("회의 분석 서버와 연결하지 못했습니다. 잠시 후 다시 시도해주세요.");
       setPhase("questions");
@@ -159,6 +196,17 @@ export default function Home() {
       window.clearInterval(lineTimer);
     }
   }
+
+  useEffect(() => {
+    if (sharedResultLoaded.current) return;
+    sharedResultLoaded.current = true;
+
+    const sharedAnswers = answersFromSearch(window.location.search);
+    if (!sharedAnswers) return;
+
+    setAnswers(sharedAnswers);
+    void submitAnalysis(sharedAnswers);
+  }, []);
 
   function nextStep() {
     if (!canContinue) return;
@@ -179,6 +227,7 @@ export default function Home() {
 
   async function shareResult() {
     if (!analysis) return;
+    const shareUrl = window.location.href;
     const text = [
       `회의 탈출 확률 ${analysis.probability}%`,
       analysis.statusTitle,
@@ -189,11 +238,11 @@ export default function Home() {
 
     try {
       if (navigator.share) {
-        await navigator.share({ title: "회의 탈출 확률", text });
+        await navigator.share({ title: "회의 탈출 확률", text, url: shareUrl });
         setShareLabel("공유 완료");
       } else {
-        await navigator.clipboard.writeText(text);
-        setShareLabel("복사 완료");
+        await navigator.clipboard.writeText(shareUrl);
+        setShareLabel("링크 복사 완료");
       }
     } catch {
       setShareLabel("공유 취소");
@@ -202,6 +251,7 @@ export default function Home() {
   }
 
   function reset() {
+    router.replace("/", { scroll: false });
     setPhase("start");
     setStep(0);
     setAnswers(initialAnswers);
