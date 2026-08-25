@@ -38,6 +38,8 @@ docker compose up --build backend frontend-app
 
 브라우저에서 `http://localhost:10001`을 엽니다. 앱인토스 앱은 `10001` 포트, 기존 Next.js 웹 버전은 기존처럼 `10000` 포트에서 확인합니다. 종료할 때는 다음을 실행합니다.
 
+개발 서버에서는 `/api` 요청을 Compose 내부의 `backend:8080`으로 전달하므로, 원격 서버 주소를 프론트엔드 코드에 넣지 않아도 됩니다.
+
 ```bash
 docker compose down
 ```
