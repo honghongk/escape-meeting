@@ -1,2 +1,2 @@
-onlyBuiltDependencies:
-  - protobufjs
+allowBuilds:
+  protobufjs: true
