@@ -14,7 +14,7 @@ git clone <repository-url>
 cd escape-meeting
 ```
 
-브라우저에서는 원격 서버의 `3000` 포트로 접속한다. 방화벽이나 보안 그룹을 사용하는 환경이라면 `3000/tcp`만 외부에 열면 된다. 백엔드 `8080` 포트는 Compose 네트워크 내부에서만 사용한다.
+브라우저에서는 원격 서버의 `3001` 포트로 접속한다. 방화벽이나 보안 그룹을 사용하는 환경이라면 `3001/tcp`만 외부에 열면 된다. 백엔드 `8080` 포트는 Compose 네트워크 내부에서만 사용한다.
 
 프론트엔드의 `NEXT_PUBLIC_API_BASE_URL`이 비어 있으면 브라우저는 같은 출처의 `/api`를 호출하고, Next.js 개발 서버가 `backend:8080`으로 프록시한다. 앱인토스용 정적 번들을 만들 때는 공개 HTTPS 백엔드 주소를 이 변수에 설정한다.
 
@@ -63,7 +63,7 @@ Next.js가 화면 구성과 라우팅을 담당하고, React로 입력 폼·결�
 ## 통신
 
 - 프론트엔드와 백엔드 간 REST/JSON 통신
-- 프론트엔드 개발 주소: `http://localhost:3000`
+- 프론트엔드 개발 주소: `http://localhost:3001`
 - 백엔드 개발 주소: 컨테이너 내부 `http://backend:8080`
 - 브라우저에서 호출하는 API 주소: 프론트엔드와 같은 출처의 `/api`
 - Next.js가 `/api/*` 요청을 백엔드 컨테이너의 `http://backend:8080/api/*`로 프록시
@@ -74,12 +74,12 @@ Compose는 다음 두 서비스를 실행한다.
 
 | 서비스 | 역할 | 포트 |
 | --- | --- | --- |
-| `frontend` | Next.js 개발 서버 | `3000` |
+| `frontend` | Next.js 개발 서버 | `3001` |
 | `backend` | Spring Boot API 서버 | `8080` |
 
 ```text
 브라우저
-  ↓ http://localhost:3000
+  ↓ http://localhost:3001
 Next.js 컨테이너
   ↓ /api/analyze → http://backend:8080/api/analyze
 Spring Boot 컨테이너
