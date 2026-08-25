@@ -225,9 +225,39 @@ export default function Home() {
     }
   }
 
+  async function copyShareUrl(url: string) {
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(url);
+        return;
+      }
+    } catch (error) {
+      void error;
+    }
+
+    const textArea = document.createElement("textarea");
+    textArea.value = url;
+    textArea.setAttribute("readonly", "");
+    textArea.style.position = "fixed";
+    textArea.style.opacity = "0";
+    document.body.appendChild(textArea);
+    textArea.select();
+
+    try {
+      if (!document.execCommand("copy")) {
+        throw new Error("링크 복사에 실패했습니다.");
+      }
+    } finally {
+      document.body.removeChild(textArea);
+    }
+  }
+
   async function shareResult() {
     if (!analysis) return;
-    const shareUrl = window.location.href;
+    const shareUrl = new URL(window.location.href);
+    shareUrl.search = searchFromAnswers(answers);
+    shareUrl.hash = "";
+    const shareUrlText = shareUrl.toString();
     const text = [
       `회의 탈출 확률 ${analysis.probability}%`,
       analysis.statusTitle,
@@ -236,16 +266,27 @@ export default function Home() {
       "너희 회사는 몇 %임?",
     ].join("\n");
 
+    setShareLabel(typeof navigator.share === "function" ? "공유 창 여는 중..." : "링크 복사 중...");
+
     try {
-      if (navigator.share) {
-        await navigator.share({ title: "회의 탈출 확률", text, url: shareUrl });
+      if (typeof navigator.share === "function") {
+        await navigator.share({ title: "회의 탈출 확률", text, url: shareUrlText });
         setShareLabel("공유 완료");
       } else {
-        await navigator.clipboard.writeText(shareUrl);
+        await copyShareUrl(shareUrlText);
         setShareLabel("링크 복사 완료");
       }
-    } catch {
-      setShareLabel("공유 취소");
+    } catch (shareError) {
+      if (shareError instanceof DOMException && shareError.name === "AbortError") {
+        setShareLabel("공유 취소");
+      } else {
+        try {
+          await copyShareUrl(shareUrlText);
+          setShareLabel("링크 복사 완료");
+        } catch {
+          setShareLabel("복사 실패");
+        }
+      }
     }
     window.setTimeout(() => setShareLabel("결과 공유"), 1800);
   }
