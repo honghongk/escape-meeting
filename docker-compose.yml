@@ -25,6 +25,8 @@ services:
       SPRING_PROFILES_ACTIVE: docker
       APP_ALLOWED_ORIGINS: >-
         https://escape-meeting.private-web.tossmini.com,
-        https://escape-meeting.web.tossmini.com
+        https://escape-meeting.web.tossmini.com,
+        https://escape-meeting.private-apps.tossmini.com,
+        https://escape-meeting.apps.tossmini.com
     ports:
       - "11002:8080"
