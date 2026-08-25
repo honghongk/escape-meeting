@@ -23,5 +23,8 @@ services:
       dockerfile: Dockerfile
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      APP_ALLOWED_ORIGINS: >-
+        https://escape-meeting.private-web.tossmini.com,
+        https://escape-meeting.web.tossmini.com
     ports:
       - "11002:8080"
