@@ -31,16 +31,22 @@ docker compose ps
 docker compose down
 ```
 
-## 앱인토스 번들
+## 앱인토스 앱
 
-앱인토스 비게임 출시 가이드는 SSR을 허용하지 않으므로, 앱인토스용 빌드는 정적 CSR export 경로를 사용한다.
+기존 웹 버전은 `frontend`에 그대로 유지하고, 출품용 미니앱은 `frontend-app`에 별도 구성한다. 앱은 Vite + React + TypeScript와 Apps-in-Toss Web Framework SDK 3.x를 사용하며, 설정 파일은 `apps-in-toss.config.ts`이다.
 
-```bash
-cd frontend
-NEXT_PUBLIC_API_BASE_URL=https://<public-api-host> npm run build:ait
+앱인토스 콘솔에 업로드하는 파일은 정적 export 결과물인 `frontend/out`이 아니라, 빌드로 생성되는 `<서비스명>.ait` 앱 번들이다. `.ait` 파일은 프로젝트 루트에 생성되며, 콘솔 업로드 후 QR 코드로 토스 앱에서 테스트한다.
+
+SDK 3.x 빌드는 Vite 정적 번들을 만든 뒤 `ait build`를 실행해 `.ait` 파일을 생성한다. 앱 프로젝트의 `package.json`에는 `build: vite build && ait build`가 정의되어 있다. 의존성 설치와 실제 `.ait` 생성은 Node.js 개발 환경에서 별도로 수행하며, 결과물은 저장소에 커밋하지 않는다.
+
+앱인토스 WebView에서 사용하는 API는 `VITE_API_BASE_URL` 환경변수로 주입한다. 백엔드는 다음 origin을 운영 환경의 `APP_ALLOWED_ORIGINS`에 등록한다.
+
+```text
+https://escape-meeting.web.tossmini.com
+https://escape-meeting.private-web.tossmini.com
 ```
 
-결과물은 `frontend/out`에 생성된다. 앱인토스 공식 기존 웹 프로젝트 가이드는 Vite 기반 `@apps-in-toss/web-framework` 설정을 예시로 안내하고 있으며, 현재 Next.js export 결과물을 앱 번들로 등록하는 호환성은 콘솔에서 실제 번들 업로드로 확인해야 한다. 이 확인 전에는 Next.js 지원을 확정하지 않는다.
+앱 초안의 대표 아이콘은 `frontend-app/public/icon.svg`이며, 앱인토스 콘솔에서 최종 대표 이미지와 출품 정보를 등록한다.
 
 ## 프론트엔드
 
@@ -50,6 +56,8 @@ NEXT_PUBLIC_API_BASE_URL=https://<public-api-host> npm run build:ait
 - Node.js 24 LTS 컨테이너
 
 Next.js가 화면 구성과 라우팅을 담당하고, React로 입력 폼·결과 화면·확률 애니메이션을 구현한다.
+
+`frontend-app`은 동일한 화면 흐름을 Apps-in-Toss WebView용 CSR 앱으로 제공한다. 결과 공유는 `navigator.share`를 우선 사용하고, 지원하지 않거나 실패하면 링크 복사로 대체한다.
 
 ## 백엔드
 
