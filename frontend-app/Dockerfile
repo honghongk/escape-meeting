@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN corepack enable
 COPY package.json ./
-RUN corepack pnpm install --no-frozen-lockfile --allow-build=protobufjs
+RUN corepack pnpm install --no-frozen-lockfile
 
 COPY . .
 
